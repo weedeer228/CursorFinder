@@ -1,4 +1,4 @@
-почта для отправки: tetsprojectfrom@posteo.net
-почта для принятия: testprojectto@posteo.net
-пароль для обоих: Hive228394=
+mail for send: tetsprojectfrom@posteo.net
+mail for receiveЛ™: testprojectto@posteo.net
+password for both: Hive228394=
 
