@@ -29,7 +29,6 @@ namespace CursorFinder.Services
                 if (_cursorFinderController is null)
                 {
                     _cursorFinderController = new CursorFinderController();
-
                     System.Console.WriteLine("Connected to database...");
                 }
                 return _cursorFinderController;
@@ -91,20 +90,11 @@ namespace CursorFinder.Services
             if (_isNotificationEnabled && recordsCount > 0 && recordsCount % 50 == 0)
                 SendNotification("total db record count: " + recordsCount.ToString());
         }
-        /// <summary>
-        /// Удаляет записи пользователей, которых нет
-        /// (Нужно чтобы не добавлять полноценную систему авторизации с логином и паролем и при этом добавить сессионность)
-        /// </summary>
-        /// <returns></returns>
-        private async Task ClearRecordsOfUsersThatDontExist()
-        {
-            var usersTokens = (await CursorFinderController.GetAllCursorPositionsAsync()).Select(r => r.UserAuthToken).Distinct();
-            foreach (var token in usersTokens)
-                if (!AuthController.IsUserExist(token))
-                    await CursorFinderController.RemoveAll(e => e.UserAuthToken.Equals(token));
-        }
+
 
         public async Task<IList<CursorPosition>> GetAllCursorPositions() => await CursorFinderController.GetAllCursorPositionsAsync();
+
+        public async Task<IList<CursorPosition>> GetCursorPositionsByToken(int userToken) => await CursorFinderController.GetCursorPositionsByUserTokenAsync(userToken);
 
         public async Task<int> GetDbRecordsCount(int userToken)
         {
@@ -133,5 +123,7 @@ namespace CursorFinder.Services
             System.Console.WriteLine("Stopping Recording...");
             return true;
         }
+
+
     }
 }

@@ -17,7 +17,6 @@ namespace CursorFinder.Contollers
         public CursorFinderController()
         {
             _dbContext = new CursorFinderDbContext();
-            ClearDbAsync().Wait();
         }
 
         public async Task AddCursorPositionAsync(int xPos, int YPos, MouseActionType actionType, int userToken)
