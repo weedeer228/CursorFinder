@@ -14,7 +14,7 @@ namespace CursorFinderHost.Models
         }
         public string Name { get; set; }
         public int Token { get; }
-        public UserRole Role { get; }
+        public UserRole Role { get; set; }
     }
 
     internal enum UserRole

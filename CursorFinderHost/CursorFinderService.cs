@@ -2,7 +2,9 @@
 using CursorFinder.Models;
 using CursorFinderHost.Contollers;
 using CursorFinderHost.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CursorFinder.Services
@@ -27,7 +29,10 @@ namespace CursorFinder.Services
                 if (_cursorFinderController is null)
                 {
                     _cursorFinderController = new CursorFinderController();
+
                     System.Console.WriteLine("Connected to database...");
+                    ClearRecordsOfUsersThatDontExist().ConfigureAwait(false);
+                    Console.WriteLine("Removed records of users than dont Exist");
                 }
                 return _cursorFinderController;
             }
@@ -50,11 +55,10 @@ namespace CursorFinder.Services
                 return _mailController;
             }
         }
-
-        public async Task AddNewCursorPositionAsync(int xPos, int Ypos, MouseActionType actionType)
+        public async Task AddNewCursorPositionAsync(int xPos, int Ypos, MouseActionType actionType, int userToken)
         {
-            await CursorFinderController.AddCursorPositionAsync(xPos, Ypos, actionType);
-            SendNotificationIfRequired();
+            await CursorFinderController.AddCursorPositionAsync(xPos, Ypos, actionType, userToken);
+            SendNotificationIfRequired(userToken);
         }
 
         public int Auth(bool isAdmin) => AuthController.Auth(isAdmin ? UserRole.Admin : UserRole.User);
@@ -78,21 +82,33 @@ namespace CursorFinder.Services
             System.Console.WriteLine("Notifications Enabled");
         }
 
-        private async void SendNotification(string message) =>   await MailController.SendMessageAsync(message);
+        private async void SendNotification(string message) => await MailController.SendMessageAsync(message);
 
         /// <summary>
         /// Отправляет уведомление если выполнено условие
         /// </summary>
-        private async void SendNotificationIfRequired()
+        private async void SendNotificationIfRequired(int userToken)
         {
-            var recordsCount = await _cursorFinderController.GetRecordsCountAsync();
+            var recordsCount = await _cursorFinderController.GetRecordsCountAsync(userToken);
             if (_isNotificationEnabled && recordsCount > 0 && recordsCount % 50 == 0)
                 SendNotification("total db record count: " + recordsCount.ToString());
+        }
+        /// <summary>
+        /// Удаляет записи пользователей, которых нет
+        /// (Нужно чтобы не добавлять полноценную систему авторизации с логином и паролем и при этом добавить сессионность)
+        /// </summary>
+        /// <returns></returns>
+        private async Task ClearRecordsOfUsersThatDontExist()
+        {
+            var usersTokens = (await CursorFinderController.GetAllCursorPositionsAsync()).Select(r => r.UserAuthToken).Distinct();
+            foreach (var token in usersTokens)
+                if (!AuthController.IsUserExist(token))
+                    await CursorFinderController.RemoveAll(e => e.UserAuthToken.Equals(token));
         }
 
         public async Task<IList<CursorPosition>> GetAllCursorPositions() => await CursorFinderController.GetAllCursorPositionsAsync();
 
-        public async Task<int> GetDbRecordsCount() => await CursorFinderController.GetRecordsCountAsync();
+        public async Task<int> GetDbRecordsCount(int userToken) => await CursorFinderController.GetRecordsCountAsync(userToken);
 
         public bool IsUSerAdmin(int userToken) => AuthController.IsUserAdmin(userToken);
 

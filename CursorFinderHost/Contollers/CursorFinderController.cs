@@ -19,21 +19,27 @@ namespace CursorFinder.Contollers
             _dbContext = new CursorFinderDbContext();
         }
 
-        public async Task AddCursorPositionAsync(int xPos, int YPos, MouseActionType actionType)
+        public async Task AddCursorPositionAsync(int xPos, int YPos, MouseActionType actionType, int userToken)
         {
             _dbContext.CursorPositions.Add(new CursorPosition()
             {
                 XPos = xPos,
                 YPos = YPos,
                 DateTime = DateTime.Now,
-                ActionType = actionType
+                ActionType = actionType,
+                UserAuthToken = userToken
             });
             await _dbContext.SaveChangesAsync();
             //System.Console.WriteLine($"Added: xPos: {xPos} yPos: {YPos}");
         }
-        public async Task<IList<CursorPosition>> GetAllCursorPositionsAsync()
+        internal async Task<IList<CursorPosition>> GetAllCursorPositionsAsync()
         {
             var cursorPositions = await _dbContext.CursorPositions.ToListAsync();
+            return cursorPositions.Skip(cursorPositions.Count() - 1000).ToList();
+        }
+        public async Task<IList<CursorPosition>> GetCursorPositionsByUserTokenAsync(int userToken)
+        {
+            var cursorPositions = (await _dbContext.CursorPositions.ToListAsync()).Where(e=>e.UserAuthToken.Equals(userToken));
             return cursorPositions.Skip(cursorPositions.Count() - 1000).ToList();
         }
 
@@ -47,8 +53,20 @@ namespace CursorFinder.Contollers
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<int> GetRecordsCountAsync() => await _dbContext.CursorPositions.CountAsync();
+        public async Task RemoveAll(Func<CursorPosition, bool> predicate = default)
+        {
+            if (predicate is null)
+                await ClearDbAsync();
+            else
+            {
+                var elemetsForDelete = _dbContext.CursorPositions.Where(predicate);
+                foreach (var elemet in elemetsForDelete)
+                    _dbContext.CursorPositions.Remove(elemet);
+            }
+            await _dbContext.SaveChangesAsync();
+        }
 
+        public async Task<int> GetRecordsCountAsync(int userToken) => await _dbContext.CursorPositions.CountAsync(e => e.UserAuthToken.Equals(userToken));
 
     }
 }

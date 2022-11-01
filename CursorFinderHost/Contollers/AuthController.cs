@@ -18,7 +18,7 @@ namespace CursorFinderHost.Contollers
             _users = new List<User>();
         }
 
-        private bool IsUserExist(int userToken)
+        public bool IsUserExist(int userToken)
         {
             return _users.Any(u => u.Token == userToken);
         }
@@ -40,7 +40,6 @@ namespace CursorFinderHost.Contollers
             AddUser(user);
             return user;
         }
-
         private User GetUserByToken(int userToken)
         {
             if (IsUserExist(userToken))
@@ -59,6 +58,7 @@ namespace CursorFinderHost.Contollers
             _users.Add(user);
         }
 
+        public void ChageUserRole(int userToken, bool isAdmin) => GetUserByToken(userToken).Role = isAdmin ? UserRole.Admin : UserRole.User;
         public int Auth(UserRole role)
         {
             if (!ServiceSecurityContext.Current.PrimaryIdentity.IsAuthenticated)

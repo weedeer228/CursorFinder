@@ -10,7 +10,7 @@ namespace CursorFinder.Services
     public interface ICursorFinderService
     {
         [OperationContract]
-        Task AddNewCursorPositionAsync(int xPos, int Ypos, MouseActionType actionType);
+        Task AddNewCursorPositionAsync(int xPos, int Ypos, MouseActionType actionType, int userToken);
         [OperationContract]
         bool StartRecord();
         [OperationContract]
@@ -24,7 +24,7 @@ namespace CursorFinder.Services
         [OperationContract]
         bool IsUSerAdmin(int userAuthToken);
         [OperationContract]
-        Task<int> GetDbRecordsCount();
+        Task<int> GetDbRecordsCount(int userToken);
         [OperationContract]
         void EnableNotification();
         [OperationContract]

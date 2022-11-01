@@ -16,6 +16,8 @@ namespace CursorFinder.Models
         public DateTime DateTime { get; set; }
         [DataMember]
         public MouseActionType ActionType { get; set; }
+        
+        public int UserAuthToken { get; set; }
     }
     [DataContract]
     public enum MouseActionType
