@@ -18,7 +18,7 @@ namespace CursorFinder.Services
         [OperationContract]
         Task<IList<CursorPosition>> GetAllCursorPositions();
         [OperationContract]
-        int Auth(bool isAdmin);
+        int Auth(bool isAdmin, int? token);
         [OperationContract]
         Task<bool> ClearDb(int userAuthToken);
         [OperationContract]

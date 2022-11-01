@@ -16,6 +16,7 @@
                         YPos = c.Int(nullable: false),
                         DateTime = c.DateTime(nullable: false),
                         ActionType = c.Int(nullable: false),
+                        UserAuthToken = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);
             

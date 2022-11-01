@@ -32,10 +32,12 @@ namespace CursorFinderHost.Contollers
         /// <param name="name"></param>
         /// <param name="role"></param>
         /// <returns></returns>
-        private User GetOrCreateUser(string name, UserRole role)
+        private User GetOrCreateUser(string name, UserRole role, int? userToken)
         {
             if (IsUserExist(name, role))
                 return _users.First(u => u.Name.Equals(name) && u.Role == role);
+            if (userToken is int token && IsUserExist(token))
+                return ChageUserRole(token, role == UserRole.User);
             var user = new User(name, Guid.NewGuid().GetHashCode(), role);
             AddUser(user);
             return user;
@@ -58,8 +60,14 @@ namespace CursorFinderHost.Contollers
             _users.Add(user);
         }
 
-        public void ChageUserRole(int userToken, bool isAdmin) => GetUserByToken(userToken).Role = isAdmin ? UserRole.Admin : UserRole.User;
-        public int Auth(UserRole role)
+        private User ChageUserRole(int userToken, bool isAdmin)
+        {
+            var user = GetUserByToken(userToken);
+            user.Role = isAdmin ? UserRole.Admin : UserRole.User;
+            return user;
+        }
+
+        public int Auth(UserRole role, int? token)
         {
             if (!ServiceSecurityContext.Current.PrimaryIdentity.IsAuthenticated)
             {
@@ -68,7 +76,7 @@ namespace CursorFinderHost.Contollers
             }
             var name = ServiceSecurityContext.Current.PrimaryIdentity.Name;
             Console.WriteLine($"Auth Succes\nuser name: {name}\nuser role: {role}");
-            return GetOrCreateUser(name, role).Token;
+            return GetOrCreateUser(name, role, token).Token;
         }
     }
 }

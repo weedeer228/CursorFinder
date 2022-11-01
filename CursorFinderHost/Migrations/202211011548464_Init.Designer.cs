@@ -13,7 +13,7 @@ namespace CursorFinder.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202210241137387_Init"; }
+            get { return "202211011548464_Init"; }
         }
         
         string IMigrationMetadata.Source

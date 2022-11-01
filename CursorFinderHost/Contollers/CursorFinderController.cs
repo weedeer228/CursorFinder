@@ -17,6 +17,7 @@ namespace CursorFinder.Contollers
         public CursorFinderController()
         {
             _dbContext = new CursorFinderDbContext();
+            ClearDbAsync().Wait();
         }
 
         public async Task AddCursorPositionAsync(int xPos, int YPos, MouseActionType actionType, int userToken)
@@ -39,7 +40,7 @@ namespace CursorFinder.Contollers
         }
         public async Task<IList<CursorPosition>> GetCursorPositionsByUserTokenAsync(int userToken)
         {
-            var cursorPositions = (await _dbContext.CursorPositions.ToListAsync()).Where(e=>e.UserAuthToken.Equals(userToken));
+            var cursorPositions = (await _dbContext.CursorPositions.ToListAsync()).Where(e => e.UserAuthToken.Equals(userToken));
             return cursorPositions.Skip(cursorPositions.Count() - 1000).ToList();
         }
 

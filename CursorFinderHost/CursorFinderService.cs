@@ -31,8 +31,6 @@ namespace CursorFinder.Services
                     _cursorFinderController = new CursorFinderController();
 
                     System.Console.WriteLine("Connected to database...");
-                    ClearRecordsOfUsersThatDontExist().ConfigureAwait(false);
-                    Console.WriteLine("Removed records of users than dont Exist");
                 }
                 return _cursorFinderController;
             }
@@ -61,7 +59,7 @@ namespace CursorFinder.Services
             SendNotificationIfRequired(userToken);
         }
 
-        public int Auth(bool isAdmin) => AuthController.Auth(isAdmin ? UserRole.Admin : UserRole.User);
+        public int Auth(bool isAdmin, int? token = default) => AuthController.Auth(isAdmin ? UserRole.Admin : UserRole.User, token);
 
         public async Task<bool> ClearDb(int userAuthToken)
         {
@@ -108,7 +106,19 @@ namespace CursorFinder.Services
 
         public async Task<IList<CursorPosition>> GetAllCursorPositions() => await CursorFinderController.GetAllCursorPositionsAsync();
 
-        public async Task<int> GetDbRecordsCount(int userToken) => await CursorFinderController.GetRecordsCountAsync(userToken);
+        public async Task<int> GetDbRecordsCount(int userToken)
+        {
+            try
+            {
+                var result = await CursorFinderController.GetRecordsCountAsync(userToken);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw e;
+            }
+        }
 
         public bool IsUSerAdmin(int userToken) => AuthController.IsUserAdmin(userToken);
 
